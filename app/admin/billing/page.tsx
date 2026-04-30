@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { getInvoices, updateInvoice, sendInvoiceWhatsapp, getInvoiceExportUrl } from '@/lib/api';
+import { useSettingsStore } from '@/lib/store/settingsStore';
 
 interface InvoiceItem {
   id: string;
@@ -38,6 +39,8 @@ export default function Billing() {
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [loading, setLoading] = useState(true);
   const [cashInput, setCashInput] = useState<string>('');
+  const [isProcessing, setIsProcessing] = useState(false);
+  const settings = useSettingsStore((state) => state.settings);
 
   const fetchInvoicesData = useCallback(async () => {
     try {
@@ -78,9 +81,10 @@ export default function Billing() {
     }
   };
 
-  const handleCompleteTransaction = async () => {
+  const handleCompleteTransaction = async (sendWhatsapp = false) => {
     if (!selectedInvoice) return;
     try {
+      setIsProcessing(true);
       const cash = parseFloat(cashInput) || 0;
       const result = await updateInvoice(selectedInvoice.id, {
         payment_status: 'paid',
@@ -89,13 +93,30 @@ export default function Billing() {
       
       if (result.success && result.data) {
         // Update local state
-        const updatedInvoice = { ...selectedInvoice, ...result.data } as Invoice;
+        const updatedInvoice = { ...selectedInvoice, ...result.data, payment_status: 'paid', cash_received: cash } as Invoice;
         setSelectedInvoice(updatedInvoice);
         setInvoices(invoices.map(inv => inv.id === updatedInvoice.id ? updatedInvoice : inv));
-        alert('Transaction completed successfully!');
+        
+        // One-Click WhatsApp
+        if (sendWhatsapp) {
+          const waResult = await sendInvoiceWhatsapp(selectedInvoice.id);
+          if (waResult.success && waResult.data) {
+            window.open((waResult.data as any).whatsapp_url, '_blank');
+          }
+        }
+
+        // Direct PDF Download (optional, but requested in plan: "Ensure the PDF download starts instantly without extra clicks")
+        // We can trigger it here if desired, or maybe just for "Complete" action.
+        // For now, let's just do WhatsApp as requested by the user specifically.
+        
+        if (!sendWhatsapp) {
+          alert('Transaction completed successfully!');
+        }
       }
     } catch (error) {
       console.error('Error completing transaction:', error);
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -108,20 +129,28 @@ export default function Billing() {
           {/* Invoice Preview */}
           <div className="lg:col-span-5 flex flex-col items-center">
             {selectedInvoice ? (
-              <div className="w-full max-w-[600px] bg-white shadow-xl rounded-sm p-8 md:p-12 border border-slate-200 relative">
+              <div className="w-full max-w-[600px] bg-white shadow-xl rounded-sm p-8 md:p-12 border border-slate-200 relative print-invoice">
                 {/* Red Accent Top Bar */}
                 <div className="absolute top-0 left-0 w-full h-2 bg-primary"></div>
 
                 {/* Header Section */}
                 <div className="text-center mb-10">
-                  <div className="inline-flex items-center justify-center w-20 h-20 bg-primary-container rounded-full mb-4">
-                    <span className="material-symbols-outlined text-white text-4xl" style={{ fontVariationSettings: "'FILL' 1" }}>
-                      restaurant
-                    </span>
+                  <div className="inline-flex items-center justify-center w-24 h-24 mb-4">
+                    {settings.logo_url ? (
+                      <img src={settings.logo_url} alt="Logo" className="w-full h-full object-contain" />
+                    ) : (
+                      <div className="w-20 h-20 bg-primary-container rounded-full flex items-center justify-center">
+                        <span className="material-symbols-outlined text-white text-4xl" style={{ fontVariationSettings: "'FILL' 1" }}>
+                          restaurant
+                        </span>
+                      </div>
+                    )}
                   </div>
-                  <h3 className="font-headline-lg text-primary tracking-tighter mb-1">ZIQA EXPREES</h3>
-                  <p className="font-label-sm text-slate-500 max-w-[200px] mx-auto uppercase tracking-wider">
-                    FL-4/15, Main Rashid Minhas Rd, Gulshan-e-Iqbal, Karachi
+                  <h3 className="font-headline-lg text-primary tracking-tighter mb-1 uppercase">
+                    {settings.restaurant_name || 'ZIQA EXPREES'}
+                  </h3>
+                  <p className="font-label-sm text-slate-500 max-w-[250px] mx-auto uppercase tracking-wider">
+                    {settings.address || 'FL-4/15, Main Rashid Minhas Rd, Gulshan-e-Iqbal, Karachi'}
                   </p>
                 </div>
 
@@ -211,7 +240,7 @@ export default function Billing() {
                   </div>
                   <div className="text-right">
                     <p className="text-xs uppercase tracking-widest font-bold">Thank you for dining!</p>
-                    <p className="text-xs">www.zaiqaexpress.pk</p>
+                    <p className="text-xs">{settings.restaurant_name.toLowerCase().replace(/\s+/g, '')}.pk</p>
                   </div>
                 </div>
               </div>
@@ -289,12 +318,23 @@ export default function Billing() {
                 </div>
               </div>
               {selectedInvoice?.payment_status !== 'paid' && (
-                <button 
-                  onClick={handleCompleteTransaction}
-                  className="w-full mt-6 bg-white text-slate-900 py-3 rounded-lg font-bold uppercase text-xs tracking-widest hover:bg-slate-100 transition-colors active:scale-[0.98]"
-                >
-                  Complete Transaction
-                </button>
+                <div className="space-y-3 mt-6">
+                  <button 
+                    onClick={() => handleCompleteTransaction(true)}
+                    disabled={isProcessing}
+                    className="w-full bg-[#25D366] text-white py-4 rounded-lg font-bold uppercase text-xs tracking-widest flex items-center justify-center gap-2 hover:opacity-90 transition-all active:scale-[0.98] disabled:opacity-50"
+                  >
+                    <span className="material-symbols-outlined text-sm">send</span>
+                    Complete & Send WhatsApp
+                  </button>
+                  <button 
+                    onClick={() => handleCompleteTransaction(false)}
+                    disabled={isProcessing}
+                    className="w-full bg-white text-slate-900 py-3 rounded-lg font-bold uppercase text-xs tracking-widest hover:bg-slate-100 transition-colors active:scale-[0.98] disabled:opacity-50"
+                  >
+                    Complete Only
+                  </button>
+                </div>
               )}
             </div>
 

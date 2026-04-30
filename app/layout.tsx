@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Epilogue, Be_Vietnam_Pro, Inter } from 'next/font/google'
 import QueryProvider from '@/components/providers/QueryProvider'
+import SettingsProvider from '@/components/providers/SettingsProvider'
 import Loader from '@/components/Loader'
 import './globals.css'
 
@@ -50,7 +51,9 @@ export default function RootLayout({
       <body className={`${epilogue.variable} ${beVietnamPro.variable} ${inter.variable} bg-background text-on-surface font-body-md overflow-x-hidden`}>
         <Loader />
         <QueryProvider>
-          {children}
+          <SettingsProvider>
+            {children}
+          </SettingsProvider>
         </QueryProvider>
       </body>
     </html>

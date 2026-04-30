@@ -50,3 +50,31 @@ h1, h2, h3, h4, h5, h6 {
 .fill-icon {
   font-variation-settings: 'FILL' 1;
 }
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .print-invoice, .print-invoice * {
+    visibility: visible;
+  }
+  .print-invoice {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 2rem;
+    box-shadow: none;
+    border: none;
+  }
+  .no-print {
+    display: none !important;
+  }
+  /* Preserve colors */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}

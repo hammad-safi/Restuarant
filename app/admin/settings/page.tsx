@@ -98,6 +98,16 @@ export default function Settings() {
                     placeholder="https://example.com/logo.png"
                   />
                 </div>
+                <div className="pt-2">
+                  <label className="block font-label-bold text-on-surface-variant mb-3">Hero Image URL (Home Page)</label>
+                  <input
+                    type="text"
+                    value={settings.hero_image_url || ''}
+                    onChange={(e) => handleInputChange('hero_image_url', e.target.value)}
+                    className="w-full px-4 py-3 rounded-lg border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
+                    placeholder="https://example.com/hero.jpg"
+                  />
+                </div>
               </div>
             </section>
 
@@ -121,8 +131,18 @@ export default function Settings() {
                       onChange={(e) => handleInputChange('primary_color', e.target.value)}
                       className="w-full text-center bg-transparent font-stat-value text-primary border-none outline-none"
                     />
-                    <p className="text-xs text-slate-500 mt-2 font-medium">Applied to buttons & headers</p>
                   </div>
+                </div>
+                <div>
+                  <label className="block font-label-bold text-on-surface-variant mb-4">Featured Items Count (Home)</label>
+                  <input
+                    type="number"
+                    value={settings.featured_items_count || '6'}
+                    onChange={(e) => handleInputChange('featured_items_count', e.target.value)}
+                    className="w-full px-4 py-3 rounded-lg border border-outline-variant focus:border-primary outline-none"
+                    min="1"
+                    max="12"
+                  />
                 </div>
               </div>
             </section>

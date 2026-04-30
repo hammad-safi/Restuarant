@@ -7,11 +7,41 @@ import Footer from '@/components/Footer'
 import MobileNav from '@/components/MobileNav'
 import WhatsAppFAB from '@/components/WhatsAppFAB'
 import { useCartStore } from '@/lib/store/cartStore'
+import { useSettingsStore } from '@/lib/store/settingsStore'
 import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
+import { getDeals } from '@/lib/api'
+
+interface Deal {
+  id: string;
+  name: string;
+  price: number;
+  description: string;
+  image_url: string;
+}
 
 export default function Home() {
   const addToCart = useCartStore((state) => state.addItem)
   const router = useRouter()
+  const settings = useSettingsStore((state) => state.settings)
+  const [deals, setDeals] = useState<Deal[]>([])
+  const [loadingDeals, setLoadingDeals] = useState(true)
+
+  useEffect(() => {
+    const fetchDeals = async () => {
+      try {
+        const result = await getDeals({ limit: settings.featured_items_count });
+        if (result.success && result.data) {
+          setDeals((result.data as any).deals || []);
+        }
+      } catch (error) {
+        console.error('Error fetching deals:', error);
+      } finally {
+        setLoadingDeals(false);
+      }
+    };
+    fetchDeals();
+  }, [settings.featured_items_count]);
 
   const handleAddToCart = (id: string, name: string, price: number) => {
     addToCart({ menu_item_id: id, name, price, quantity: 1 })
@@ -27,9 +57,9 @@ export default function Home() {
         <section className="relative h-[751px] w-full overflow-hidden">
           <div className="absolute inset-0 bg-black/40 z-10"></div>
           <img
-            alt="Sizzling Burger"
+            alt="Hero Background"
             className="absolute inset-0 w-full h-full object-cover"
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuD42SHx-4xW7uD3Tk09L_y9-tPtjFoROj3zFr5yY6Xb0TH7f_EfLZCGZbE3FUXEXwjq_RoLwaOvWjDRIz-w9l3mO2PWYZVc9lY-fdAzKdBNKnLXS5dtDnc7vqL8edWwTUdSqSms2rxaxQFJhvIG2D7ohEFRrVlEerZ8OT-dvUvLcHqtgj7ArIQc4wU9G3b628dt3hYVPbnLfuYwyOlSKt49lBdM5rMcu3hmymBJyNEBm1S-dqpl-efdayrZwTyaE8nkogjEALoW0sPg"
+            src={settings.hero_image_url || "https://lh3.googleusercontent.com/aida-public/AB6AXuD42SHx-4xW7uD3Tk09L_y9-tPtjFoROj3zFr5yY6Xb0TH7f_EfLZCGZbE3FUXEXwjq_RoLwaOvWjDRIz-w9l3mO2PWYZVc9lY-fdAzKdBNKnLXS5dtDnc7vqL8edWwTUdSqSms2rxaxQFJhvIG2D7ohEFRrVlEerZ8OT-dvUvLcHqtgj7ArIQc4wU9G3b628dt3hYVPbnLfuYwyOlSKt49lBdM5rMcu3hmymBJyNEBm1S-dqpl-efdayrZwTyaE8nkogjEALoW0sPg"}
           />
           <div className="relative z-20 h-full max-w-7xl mx-auto px-6 flex flex-col justify-center items-start text-white">
             <div className="space-y-4 max-w-3xl">
@@ -37,7 +67,7 @@ export default function Home() {
                 Best in Town
               </span>
               <h2 className="font-display-xl text-display-xl text-white leading-none drop-shadow-lg">
-                Zaiqa Express: Taste the Madness
+                {settings.restaurant_name || 'Zaiqa Express'}: Taste the Madness
                 <br />
                 <span className="text-secondary-container">ذائقہ ایکسپریس</span>
               </h2>
@@ -76,77 +106,36 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Deal 1 */}
-            <div className="group relative bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-gray-100">
-              <div className="relative h-64 overflow-hidden">
-                <img
-                  alt="Mega Combo"
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuAQr8XMVBOdYrb0GfV6d8BHFU5x63-tPKpaRy9a6ByZa5QQsYO8vEtZXbvCN4erI6c6zuTMXgwp0YnQOmzfCs_kvaR8qrcwvIG6ZB6C-eC9WUJyvxSAke6xZFw86dLoJvaF3nyqvy70IrgYwJuZKEQ4gF7EVvhehpW0Y9q8VgLDqlbllsRVvjDPqwwmgEbCtRq2SkMe9Atu4-GmNhDhGPsUZJ0Sf5Y_finZfgRpgCY-uCtQGx9JdxqHkgEqNPcmqntgdMtZxAWZ6kUW"
-                />
-                <div className="absolute top-4 right-4 bg-secondary-container text-on-secondary-container font-headline-md px-4 py-1 rounded-xl shadow-md">
-                  Rs. 999
+            {deals.map((deal) => (
+              <div key={deal.id} className="group relative bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-gray-100">
+                <div className="relative h-64 overflow-hidden">
+                  <img
+                    alt={deal.name}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    src={deal.image_url}
+                  />
+                  <div className="absolute top-4 right-4 bg-secondary-container text-on-secondary-container font-headline-md px-4 py-1 rounded-xl shadow-md">
+                    Rs. {deal.price}
+                  </div>
+                </div>
+                <div className="p-6">
+                  <h4 className="font-headline-md text-headline-md mb-2">{deal.name}</h4>
+                  <p className="text-tertiary text-sm mb-4">{deal.description}</p>
+                  <button 
+                    onClick={() => handleAddToCart(deal.id, deal.name, deal.price)}
+                    className="w-full py-3 border-2 border-primary text-primary font-label-bold rounded-xl hover:bg-primary hover:text-white transition-colors"
+                  >
+                    Add to Cart
+                  </button>
                 </div>
               </div>
-              <div className="p-6">
-                <h4 className="font-headline-md text-headline-md mb-2">The Madness Combo</h4>
-                <p className="text-tertiary text-sm mb-4">1x Double Patty Burger, 1x Large Fries, 1x Chilled Coke.</p>
-                <button 
-                  onClick={() => handleAddToCart('combo-1', 'The Madness Combo', 999)}
-                  className="w-full py-3 border-2 border-primary text-primary font-label-bold rounded-xl hover:bg-primary hover:text-white transition-colors"
-                >
-                  Add to Cart
-                </button>
-              </div>
-            </div>
-
-            {/* Deal 2 */}
-            <div className="group relative bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-gray-100">
-              <div className="relative h-64 overflow-hidden">
-                <img
-                  alt="Pizza Deal"
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuAeYTtxvBEll31sOSZPgXfKiqfPeModenP8E2BdWfr_Xo_N7QXJprW2BjNiU5WspLQs-mlTy1skd0nqWtWd8z601njLA7qBXJ5upruCQQA3Yvzl-rKTlOaArpSWiyRx3MApfXJvodzNrXKjNRcL5zwJqHBkVAz1DhGCtsQUTX28bqQnheStLhfeRm9YG-1T99WaZAWmd_V4RmNyTCdAKProUNBSA7Wx9tWTMf-WsL4SkCq3Czfnih2CDL1DMASGhyKT5I3S86cnmJcr"
-                />
-                <div className="absolute top-4 right-4 bg-secondary-container text-on-secondary-container font-headline-md px-4 py-1 rounded-xl shadow-md">
-                  Rs. 1499
-                </div>
-              </div>
-              <div className="p-6">
-                <h4 className="font-headline-md text-headline-md mb-2">Family Feast</h4>
-                <p className="text-tertiary text-sm mb-4">2x Large Pizzas (Any Flavor) + 1.5L Soft Drink.</p>
-                <button 
-                  onClick={() => handleAddToCart('combo-2', 'Family Feast', 1499)}
-                  className="w-full py-3 border-2 border-primary text-primary font-label-bold rounded-xl hover:bg-primary hover:text-white transition-colors"
-                >
-                  Add to Cart
-                </button>
-              </div>
-            </div>
-
-            {/* Deal 3 */}
-            <div className="group relative bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-gray-100">
-              <div className="relative h-64 overflow-hidden">
-                <img
-                  alt="Platter"
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuC1IHbAFwuJ6pVN4KpAGkC1Lq6srhcWNcndMp1yxVbPxxse_lF4f9Rg47Y57hIg-KybWHCMv6FPhYZrq9o8NPL8bLSFiRt0luU4xJRXNy7hKpG0mm-BJAb4e_7EXW6BLHH6EG8rdkudpPAnF4nH_2yc9HxZIYoBE3vk5o3ORq_cAg3bk87aMR_8CuZGbeEDWC4h5l-HAEmBVWPAKjOjomEIWMR5mx1CFTgtK9cP33ZGNkrrV2KRTvZn33cSTvKqFt5zox089bpLNELh"
-                />
-                <div className="absolute top-4 right-4 bg-secondary-container text-on-secondary-container font-headline-md px-4 py-1 rounded-xl shadow-md">
-                  Rs. 799
-                </div>
-              </div>
-              <div className="p-6">
-                <h4 className="font-headline-md text-headline-md mb-2">Snack Attack</h4>
-                <p className="text-tertiary text-sm mb-4">12x Spicy Wings, 6x Nuggets, and 2 Dipping Sauces.</p>
-                <button 
-                  onClick={() => handleAddToCart('combo-3', 'Snack Attack', 799)}
-                  className="w-full py-3 border-2 border-primary text-primary font-label-bold rounded-xl hover:bg-primary hover:text-white transition-colors"
-                >
-                  Add to Cart
-                </button>
-              </div>
-            </div>
+            ))}
+            {loadingDeals && Array(3).fill(0).map((_, i) => (
+              <div key={i} className="animate-pulse bg-slate-100 h-96 rounded-3xl"></div>
+            ))}
+            {!loadingDeals && deals.length === 0 && (
+              <p className="col-span-full text-center text-slate-400 py-12">No featured deals available at the moment.</p>
+            )}
           </div>
         </section>
 

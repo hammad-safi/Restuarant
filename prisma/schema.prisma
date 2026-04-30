@@ -1,0 +1,187 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String   @id @default(uuid())
+  username      String   @unique
+  password_hash String
+  email         String?  @unique
+  full_name     String?
+  role          String   @default("admin")
+  is_active     Boolean  @default(true)
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  @@map("users")
+}
+
+model Category {
+  id            String     @id @default(uuid())
+  name          String
+  slug          String     @unique
+  description   String?
+  image_url     String?
+  display_order Int        @default(0)
+  is_active     Boolean    @default(true)
+  created_at    DateTime   @default(now())
+  updated_at    DateTime   @updatedAt
+  menu_items    MenuItem[]
+
+  @@map("categories")
+}
+
+model MenuItem {
+  id               String      @id @default(uuid())
+  name             String
+  description      String?
+  price            Decimal     @db.Decimal(10, 2)
+  image_url        String?
+  category_id      String?
+  category         Category?   @relation(fields: [category_id], references: [id], onDelete: SetNull)
+  is_hot           Boolean     @default(false)
+  is_deal          Boolean     @default(false)
+  is_available     Boolean     @default(true)
+  preparation_time Int         @default(15)
+  created_at       DateTime    @default(now())
+  updated_at       DateTime    @updatedAt
+  order_items      OrderItem[]
+
+  @@map("menu_items")
+}
+
+model Deal {
+  id                  String    @id @default(uuid())
+  title               String
+  description         String?
+  discount_percentage Decimal?  @db.Decimal(5, 2)
+  discount_amount     Decimal?  @db.Decimal(10, 2)
+  image_url           String?
+  is_active           Boolean   @default(true)
+  start_date          DateTime?
+  end_date            DateTime?
+  created_at          DateTime  @default(now())
+  updated_at          DateTime  @updatedAt
+
+  @@map("deals")
+}
+
+model Order {
+  id                 String      @id @default(uuid())
+  order_number       String      @unique
+  customer_name      String
+  customer_phone     String
+  delivery_address   String?
+  total_amount       Decimal     @db.Decimal(10, 2)
+  status             String      @default("pending")
+  notes              String?
+  estimated_delivery DateTime?
+  created_at         DateTime    @default(now())
+  updated_at         DateTime    @updatedAt
+  items              OrderItem[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id                   String    @id @default(uuid())
+  order_id             String
+  order                Order     @relation(fields: [order_id], references: [id], onDelete: Cascade)
+  menu_item_id         String?
+  menu_item            MenuItem? @relation(fields: [menu_item_id], references: [id], onDelete: SetNull)
+  item_name            String
+  item_price           Decimal   @db.Decimal(10, 2)
+  quantity             Int       @default(1)
+  subtotal             Decimal   @db.Decimal(10, 2)
+  special_instructions String?
+  created_at           DateTime  @default(now())
+
+  @@map("order_items")
+}
+
+model Setting {
+  id         String   @id @default(uuid())
+  key        String   @unique
+  value      String?
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("settings")
+}
+
+model Gallery {
+  id         String   @id @default(uuid())
+  image_url  String
+  category   String   @default("Food")
+  created_at DateTime @default(now())
+
+  @@map("gallery")
+}
+
+model Transaction {
+  id             String   @id @default(uuid())
+  order_id       String   @unique
+  amount         Decimal  @db.Decimal(10, 2)
+  payment_method String   @default("Card")
+  status         String   @default("Completed")
+  created_at     DateTime @default(now())
+
+  @@map("transactions")
+}
+
+model Invoice {
+  id               String        @id @default(uuid())
+  invoice_number   String        @unique
+  order_id         String?       @unique
+  customer_name    String
+  customer_phone   String
+  order_type       String        @default("dine-in")
+  table_number     String?
+  subtotal         Decimal       @db.Decimal(10, 2)
+  tax_amount       Decimal       @default(0) @db.Decimal(10, 2)
+  discount_amount  Decimal       @default(0) @db.Decimal(10, 2)
+  total_amount     Decimal       @db.Decimal(10, 2)
+  payment_method   String        @default("cash")
+  payment_status   String        @default("pending")
+  cash_received    Decimal       @default(0) @db.Decimal(10, 2)
+  change_returned  Decimal       @default(0) @db.Decimal(10, 2)
+  invoice_date     DateTime      @default(now())
+  created_at       DateTime      @default(now())
+  updated_at       DateTime      @updatedAt
+  items            InvoiceItem[]
+
+  @@map("invoices")
+}
+
+model InvoiceItem {
+  id                   String   @id @default(uuid())
+  invoice_id           String
+  invoice              Invoice  @relation(fields: [invoice_id], references: [id], onDelete: Cascade)
+  item_name            String
+  item_price           Decimal  @db.Decimal(10, 2)
+  quantity             Int      @default(1)
+  subtotal             Decimal  @db.Decimal(10, 2)
+  special_instructions String?
+  created_at           DateTime @default(now())
+
+  @@map("invoice_items")
+}
+
+model Notification {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  type        String   @default("system") // "order", "alert", "system", "deal"
+  is_read     Boolean  @default(false)
+  created_at  DateTime @default(now())
+
+  @@map("notifications")
+}
