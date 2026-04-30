@@ -18,22 +18,7 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  async rewrites() {
-    return [
-      {
-        source: '/api/:path*',
-        destination: 'http://localhost:5000/api/:path*',
-      },
-      {
-        source: '/health',
-        destination: 'http://localhost:5000/health',
-      },
-      {
-        source: '/db-health',
-        destination: 'http://localhost:5000/db-health',
-      },
-    ]
-  },
+
 }
 
 module.exports = nextConfig

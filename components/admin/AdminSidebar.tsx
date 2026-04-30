@@ -22,7 +22,7 @@ export default function AdminSidebar({ isOpen, onClose }: { isOpen?: boolean; on
   return (
     <aside className={`fixed h-screen w-[210px] left-0 bg-[#1a1f2e] flex flex-col z-[200] transition-transform duration-300 lg:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
       <div className="p-[18px_20px_14px] border-b border-white/10">
-        <h1 className="text-[15px] font-bold tracking-[3px] text-[#d4a843] uppercase">Ziqa Exprees</h1>
+        <h1 className="text-[15px] font-bold tracking-[3px] text-[#d4a843] uppercase">Ziqa Express</h1>
       </div>
 
       <div className="flex items-center gap-[10px] p-[14px_18px] border-b border-white/10">

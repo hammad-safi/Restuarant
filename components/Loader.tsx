@@ -20,7 +20,7 @@ export default function Loader() {
     <div className={`fixed inset-0 bg-[#1a1f2e] z-[9999] flex flex-col items-center justify-center gap-8 transition-opacity duration-700 ${!isVisible ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
       {/* Brand wordmark */}
       <div className="text-[clamp(22px,5vw,32px)] font-bold tracking-[5px] uppercase text-[#d4a843] animate-[fadeUp_0.6s_0.2s_forwards] opacity-0">
-        Ziqa Exprees
+        Ziqa Express
       </div>
 
       {/* Honeycomb / hex loader */}

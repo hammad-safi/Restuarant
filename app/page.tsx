@@ -14,7 +14,7 @@ import { getDeals } from '@/lib/api'
 
 interface Deal {
   id: string;
-  name: string;
+  title: string;
   price: number;
   description: string;
   image_url: string;
@@ -32,7 +32,7 @@ export default function Home() {
       try {
         const result = await getDeals({ limit: settings.featured_items_count });
         if (result.success && result.data) {
-          setDeals((result.data as any).deals || []);
+          setDeals((result.data as any).items || []);
         }
       } catch (error) {
         console.error('Error fetching deals:', error);
@@ -43,9 +43,9 @@ export default function Home() {
     fetchDeals();
   }, [settings.featured_items_count]);
 
-  const handleAddToCart = (id: string, name: string, price: number) => {
-    addToCart({ menu_item_id: id, name, price, quantity: 1 })
-    alert(`${name} added to cart!`)
+  const handleAddToCart = (id: string, title: string, price: number) => {
+    addToCart({ menu_item_id: id, name: title, price, quantity: 1 })
+    alert(`${title} added to cart!`)
     router.push('/order')
   }
 
@@ -110,7 +110,7 @@ export default function Home() {
               <div key={deal.id} className="group relative bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-gray-100">
                 <div className="relative h-64 overflow-hidden">
                   <img
-                    alt={deal.name}
+                    alt={deal.title}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                     src={deal.image_url}
                   />
@@ -119,10 +119,10 @@ export default function Home() {
                   </div>
                 </div>
                 <div className="p-6">
-                  <h4 className="font-headline-md text-headline-md mb-2">{deal.name}</h4>
+                  <h4 className="font-headline-md text-headline-md mb-2">{deal.title}</h4>
                   <p className="text-tertiary text-sm mb-4">{deal.description}</p>
                   <button 
-                    onClick={() => handleAddToCart(deal.id, deal.name, deal.price)}
+                    onClick={() => handleAddToCart(deal.id, deal.title, deal.price)}
                     className="w-full py-3 border-2 border-primary text-primary font-label-bold rounded-xl hover:bg-primary hover:text-white transition-colors"
                   >
                     Add to Cart
