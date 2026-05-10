@@ -41,7 +41,7 @@ export default function DealsClient() {
   return (
     <main className="pt-24 pb-32">
       {/* Hero Promotion Section */}
-      <section className="px-6 mb-12 max-w-7xl mx-auto">
+      {/* <section className="px-6 mb-12 max-w-7xl mx-auto">
         <div className="relative overflow-hidden rounded-3xl bg-[#1a1f2e] min-h-[400px] flex items-center p-8 md:p-16">
           <div className="absolute inset-0 z-0">
             <img
@@ -60,7 +60,7 @@ export default function DealsClient() {
               Get any Signature Burger and Loaded Fries at half price. Taste the authentic spice of Lahore delivered to your door.
             </p>
 
-            {/* Countdown Timer */}
+            // Countdown Timer
             <div className="flex gap-4 mb-8">
               <div className="bg-white/10 backdrop-blur-md rounded-xl p-4 min-w-[80px] text-center border border-white/20">
                 <div className="text-3xl font-black text-white">02</div>
@@ -84,7 +84,8 @@ export default function DealsClient() {
             </button>
           </div>
         </div>
-      </section>
+      </section> 
+      */}
 
       {/* Promotion Grid */}
       <section className="px-6 max-w-7xl mx-auto">

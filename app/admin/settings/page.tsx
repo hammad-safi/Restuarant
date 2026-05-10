@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { getSettings, updateSetting } from '@/lib/api';
+import { getSettings, updateAllSettings } from '@/lib/api';
 
 import AdminPageLoader from '@/components/admin/AdminPageLoader';
+import ImageUpload from '@/components/admin/ImageUpload';
 
 export default function Settings() {
   const [settings, setSettings] = useState<Record<string, string>>({});
@@ -35,11 +36,12 @@ export default function Settings() {
   const handleSave = async () => {
     try {
       setIsSaving(true);
-      const promises = Object.entries(settings).map(([key, value]) =>
-        updateSetting(key, value)
-      );
-      await Promise.all(promises);
-      alert('Settings saved successfully!');
+      const response = await updateAllSettings(settings);
+      if (response.success) {
+        alert('Settings saved successfully!');
+      } else {
+        alert('Error saving settings: ' + response.message);
+      }
     } catch (err) {
       console.error('Error saving settings:', err);
       alert('Error saving settings');
@@ -88,26 +90,20 @@ export default function Settings() {
                     placeholder="Short marketing tagline"
                   />
                 </div>
-                <div className="pt-2">
-                  <label className="block font-label-bold text-on-surface-variant mb-3">Logo URL</label>
-                  <input
-                    type="text"
-                    value={settings.logo_url || ''}
-                    onChange={(e) => handleInputChange('logo_url', e.target.value)}
-                    className="w-full px-4 py-3 rounded-lg border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
-                    placeholder="https://example.com/logo.png"
-                  />
-                </div>
-                <div className="pt-2">
-                  <label className="block font-label-bold text-on-surface-variant mb-3">Hero Image URL (Home Page)</label>
-                  <input
-                    type="text"
-                    value={settings.hero_image_url || ''}
-                    onChange={(e) => handleInputChange('hero_image_url', e.target.value)}
-                    className="w-full px-4 py-3 rounded-lg border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
-                    placeholder="https://example.com/hero.jpg"
-                  />
-                </div>
+                
+                <ImageUpload 
+                  label="Logo URL"
+                  value={settings.logo_url || ''}
+                  onChange={(url) => handleInputChange('logo_url', url)}
+                  helperText="Recommended: 512x512px transparent PNG"
+                />
+
+                <ImageUpload 
+                  label="Hero Image URL (Home Page)"
+                  value={settings.hero_image_url || ''}
+                  onChange={(url) => handleInputChange('hero_image_url', url)}
+                  helperText="Recommended: 1920x1080px high quality image"
+                />
               </div>
             </section>
 
@@ -125,12 +121,20 @@ export default function Settings() {
                       className="w-16 h-16 rounded-full shadow-lg mb-4 ring-4 ring-white"
                       style={{ backgroundColor: settings.primary_color || '#1A362E' }}
                     ></div>
-                    <input
-                      type="text"
-                      value={settings.primary_color || '#1A362E'}
-                      onChange={(e) => handleInputChange('primary_color', e.target.value)}
-                      className="w-full text-center bg-transparent font-stat-value text-primary border-none outline-none"
-                    />
+                    <div className="flex gap-2 w-full">
+                      <input
+                        type="color"
+                        value={settings.primary_color || '#1A362E'}
+                        onChange={(e) => handleInputChange('primary_color', e.target.value)}
+                        className="w-12 h-12 rounded-lg border-none cursor-pointer"
+                      />
+                      <input
+                        type="text"
+                        value={settings.primary_color || '#1A362E'}
+                        onChange={(e) => handleInputChange('primary_color', e.target.value)}
+                        className="flex-1 text-center bg-white border border-outline-variant rounded-lg font-stat-value text-primary outline-none"
+                      />
+                    </div>
                   </div>
                 </div>
                 <div>
@@ -247,4 +251,5 @@ export default function Settings() {
     </>
   );
 }
+
 

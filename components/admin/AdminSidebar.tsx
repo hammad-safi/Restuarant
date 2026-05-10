@@ -2,9 +2,11 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useSettingsStore } from '@/lib/store/settingsStore';
 
 export default function AdminSidebar({ isOpen, onClose }: { isOpen?: boolean; onClose?: () => void }) {
   const pathname = usePathname();
+  const settings = useSettingsStore((state) => state.settings);
 
   const isActive = (path: string) => pathname?.includes(path) || false;
 
@@ -22,9 +24,15 @@ export default function AdminSidebar({ isOpen, onClose }: { isOpen?: boolean; on
 
   return (
     <aside className={`fixed h-screen w-[210px] left-0 bg-[#1a1f2e] flex flex-col z-[200] transition-transform duration-300 lg:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-      <div className="p-[18px_20px_14px] border-b border-white/10">
-        <h1 className="text-[15px] font-bold tracking-[3px] text-[#d4a843] uppercase">Ziqa Express</h1>
+      <div className="p-[18px_20px_14px] border-b border-white/10 flex items-center gap-3">
+        {settings.logo_url && (
+          <img src={settings.logo_url} alt="Logo" className="h-6 w-auto object-contain" />
+        )}
+        <h1 className="text-[13px] font-bold tracking-[2px] text-[#d4a843] uppercase truncate">
+          {settings.restaurant_name || 'Ziqa Express'}
+        </h1>
       </div>
+
 
       <div className="flex items-center gap-[10px] p-[14px_18px] border-b border-white/10">
         <div className="w-8 h-8 rounded-full bg-[#d4a843] flex items-center justify-center text-[13px] font-bold text-[#1a1f2e]">

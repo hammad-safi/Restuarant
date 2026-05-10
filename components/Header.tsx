@@ -3,11 +3,13 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useCartStore } from '@/lib/store/cartStore'
+import { useSettingsStore } from '@/lib/store/settingsStore'
 import { useEffect, useState } from 'react'
 
 export default function Header() {
   const pathname = usePathname()
   const getTotalItems = useCartStore((state) => state.getTotalItems)
+  const settings = useSettingsStore((state) => state.settings)
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
@@ -21,12 +23,16 @@ export default function Header() {
       <div className="flex justify-between items-center px-6 py-4 max-w-7xl mx-auto h-[70px]">
         <div className="flex items-center gap-4">
           <span className="material-symbols-outlined text-white/70 cursor-pointer hover:text-white transition-colors">menu</span>
-          <Link href="/">
-            <h1 className="text-[18px] md:text-[22px] font-bold tracking-[3px] text-[#d4a843] uppercase">
-              ZIQA EXPREES
+          <Link href="/" className="flex items-center gap-3">
+            {settings.logo_url && (
+              <img src={settings.logo_url} alt="Logo" className="h-8 md:h-10 w-auto object-contain" />
+            )}
+            <h1 className="text-[18px] md:text-[22px] font-bold tracking-[3px] text-[#d4a843] uppercase whitespace-nowrap">
+              {settings.restaurant_name || 'ZIQA EXPRESS'}
             </h1>
           </Link>
         </div>
+
 
         <nav className="hidden md:flex gap-8">
           <Link

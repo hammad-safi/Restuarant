@@ -303,6 +303,14 @@ export async function updateSetting(key: string, value: string) {
   });
 }
 
+export async function updateAllSettings(settings: Record<string, string>) {
+  return apiCall('/api/settings', {
+    method: 'PUT',
+    body: JSON.stringify(settings),
+  });
+}
+
+
 // ============================================
 // GALLERY ENDPOINTS
 // ============================================
