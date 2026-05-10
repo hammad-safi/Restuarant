@@ -15,7 +15,9 @@ import { getDeals } from '@/lib/api'
 interface Deal {
   id: string;
   title: string;
-  price: number;
+  price?: number;
+  discount_percentage?: number;
+  discount_amount?: number;
   description: string;
   image_url: string;
 }
@@ -43,8 +45,9 @@ export default function Home() {
     fetchDeals();
   }, [settings.featured_items_count]);
 
-  const handleAddToCart = (id: string, title: string, price: number) => {
-    addToCart({ menu_item_id: id, name: title, price, quantity: 1 })
+  const handleAddToCart = (id: string, title: string, price: number | undefined) => {
+    const finalPrice = price || 0;
+    addToCart({ menu_item_id: id, name: title, price: finalPrice, quantity: 1 })
     alert(`${title} added to cart!`)
     router.push('/order')
   }
@@ -114,15 +117,20 @@ export default function Home() {
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                     src={deal.image_url}
                   />
-                  <div className="absolute top-4 right-4 bg-secondary-container text-on-secondary-container font-headline-md px-4 py-1 rounded-xl shadow-md">
-                    Rs. {deal.price}
+                  <div className="absolute top-4 right-4 bg-secondary-container text-on-secondary-container font-headline-md px-4 py-1 rounded-xl shadow-md z-20">
+                    Rs. {deal.discount_amount || deal.price}
                   </div>
+                  {deal.discount_percentage && (
+                    <div className="absolute top-4 left-4 bg-error text-white font-label-bold px-3 py-1 rounded-lg shadow-md z-20">
+                      {deal.discount_percentage}% OFF
+                    </div>
+                  )}
                 </div>
                 <div className="p-6">
                   <h4 className="font-headline-md text-headline-md mb-2">{deal.title}</h4>
                   <p className="text-tertiary text-sm mb-4">{deal.description}</p>
                   <button 
-                    onClick={() => handleAddToCart(deal.id, deal.title, deal.price)}
+                    onClick={() => handleAddToCart(deal.id, deal.title, deal.discount_amount || deal.price)}
                     className="w-full py-3 border-2 border-primary text-primary font-label-bold rounded-xl hover:bg-primary hover:text-white transition-colors"
                   >
                     Add to Cart

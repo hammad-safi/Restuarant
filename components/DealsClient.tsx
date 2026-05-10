@@ -42,13 +42,14 @@ export default function DealsClient() {
     <main className="pt-24 pb-32">
       {/* Hero Promotion Section */}
       <section className="px-6 mb-12 max-w-7xl mx-auto">
-        <div className="relative overflow-hidden rounded-3xl bg-primary-container min-h-[400px] flex items-center p-8 md:p-16">
+        <div className="relative overflow-hidden rounded-3xl bg-[#1a1f2e] min-h-[400px] flex items-center p-8 md:p-16">
           <div className="absolute inset-0 z-0">
             <img
-              className="w-full h-full object-cover opacity-40 mix-blend-overlay"
+              className="w-full h-full object-cover opacity-60"
               src="https://lh3.googleusercontent.com/aida-public/AB6AXuDoDPqV0cH_GcWpIOOdWgPIw7PIgTpz_Drgrjdv_wr_AIy4AwWZzfWug4jt3jgsmr_AxdGpzJaLk-EMkLaxYAoOolc8_-ngE56dq7c8HVQXBEBWtjWWovj8_fJrW1qu2J3RV7llBTfkySWo66N2g-qAnEE8-4msnpfYku57iqrGb_BNyTV0gHsM3_w1KlsuUnpFdD-80pKbmUo8XUDf6hBjAvUlPoa3uMbKPZKdGTb3YicwapdomWmQ5vBE52Lybpr1QARNKOL82EtO"
               alt="Burgers"
             />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent"></div>
           </div>
           <div className="relative z-10 max-w-2xl">
             <div className="inline-block bg-secondary-container text-on-secondary-fixed px-4 py-1 rounded-full font-label-bold text-label-bold mb-6">
@@ -111,38 +112,41 @@ export default function DealsClient() {
                 key={deal.id}
                 className={`group relative overflow-hidden rounded-3xl ${
                   index === 0
-                    ? 'md:col-span-2 bg-surface-container-high h-[450px]'
-                    : 'bg-secondary-container h-[300px]'
+                    ? 'md:col-span-2 bg-[#1a1f2e] h-[450px]'
+                    : 'bg-[#1a1f2e] h-[300px]'
                 }`}
               >
                 <img
-                  className={`absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 ${
-                    index === 0 ? 'opacity-100' : 'opacity-0'
-                  }`}
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-60 group-hover:opacity-80"
                   src={deal.image_url}
                   alt={deal.title}
                 />
-                <div className={`absolute inset-0 ${index === 0 ? 'bg-gradient-to-t from-black/80 via-transparent to-transparent' : ''}`}></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
                 
-                {index === 0 && (
-                  <div className="absolute top-6 left-6 bg-[#d4a843] text-[#1a1f2e] font-black px-4 py-2 rounded-lg text-xl shadow-xl">
-                    {deal.discount_percentage ? `${deal.discount_percentage}% OFF` : 'SPECIAL OFFER'}
-                  </div>
-                )}
+                <div className="absolute top-6 left-6 flex gap-2 z-20">
+                  {deal.discount_percentage && (
+                    <div className="bg-[#d4a843] text-[#1a1f2e] font-black px-4 py-2 rounded-lg text-lg shadow-xl">
+                      {deal.discount_percentage}% OFF
+                    </div>
+                  )}
+                  {deal.discount_amount && (
+                    <div className="bg-white text-primary font-black px-4 py-2 rounded-lg text-lg shadow-xl">
+                      Rs. {deal.discount_amount}
+                    </div>
+                  )}
+                </div>
 
-                <div className={`absolute ${index === 0 ? 'bottom-8 left-8 right-8' : 'top-8 left-8 right-8'}`}>
-                  <h4 className={`font-black text-white mb-2 ${index === 0 ? 'text-3xl' : 'text-2xl'}`}>
+                <div className={`absolute ${index === 0 ? 'bottom-8 left-8 right-8' : 'bottom-8 left-8 right-8'}`}>
+                  <h4 className={`font-black text-white mb-2 ${index === 0 ? 'text-4xl' : 'text-2xl'}`}>
                     {deal.title}
                   </h4>
-                  <p className={`text-white/80 font-body-md ${index === 0 ? '' : 'text-sm'}`}>{deal.description}</p>
-                  {index === 0 && (
-                    <button 
-                      onClick={() => handleClaimDeal(deal)}
-                      className="bg-secondary-container text-on-secondary-fixed px-6 py-3 rounded-xl font-label-bold mt-4"
-                    >
-                      REDEEM OFFER
-                    </button>
-                  )}
+                  <p className={`text-white/80 font-body-md mb-4 ${index === 0 ? 'max-w-xl' : 'text-sm line-clamp-2'}`}>{deal.description}</p>
+                  <button 
+                    onClick={() => handleClaimDeal(deal)}
+                    className="bg-secondary-container text-on-secondary-fixed px-6 py-3 rounded-xl font-label-bold transition-all active:scale-95 shadow-lg"
+                  >
+                    REDEEM OFFER
+                  </button>
                 </div>
               </div>
             ))}

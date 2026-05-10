@@ -16,6 +16,9 @@ export async function GET(req: NextRequest) {
 
     const items = await prisma.deal.findMany({
       where,
+      include: {
+        menu_items: true
+      },
       orderBy: { created_at: 'desc' },
       take: limit,
       skip: offset
@@ -35,7 +38,7 @@ export async function POST(req: NextRequest) {
       return addCorsHeaders(NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 403 }));
     }
 
-    const { title, description, discount_percentage, discount_amount, image_url, is_active, start_date, end_date } = await req.json();
+    const { title, description, discount_percentage, discount_amount, image_url, is_active, start_date, end_date, menu_item_ids } = await req.json();
 
     if (!title) {
       return addCorsHeaders(NextResponse.json({ success: false, message: 'Title is required' }, { status: 400 }));
@@ -50,7 +53,13 @@ export async function POST(req: NextRequest) {
         image_url: image_url || null,
         is_active: is_active !== false,
         start_date: start_date ? new Date(start_date) : null,
-        end_date: end_date ? new Date(end_date) : null
+        end_date: end_date ? new Date(end_date) : null,
+        menu_items: menu_item_ids && menu_item_ids.length > 0 ? {
+          connect: menu_item_ids.map((id: string) => ({ id }))
+        } : undefined
+      },
+      include: {
+        menu_items: true
       }
     });
 

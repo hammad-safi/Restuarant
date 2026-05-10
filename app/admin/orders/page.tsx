@@ -33,6 +33,8 @@ interface Stats {
   completed: number;
   total_orders: number;
   total_revenue: number;
+  lifetime_orders: number;
+  lifetime_revenue: number;
 }
 
 export default function OrdersPage() {
@@ -101,12 +103,12 @@ export default function OrdersPage() {
           [
             { label: 'Pending', value: stats.pending, color: 'yellow' },
             { label: 'Confirmed', value: stats.confirmed, color: 'blue' },
-            { label: 'Today Revenue', value: `PKR ${stats.total_revenue.toLocaleString()}`, color: 'green' },
-            { label: 'Total Orders', value: stats.total_orders, color: 'red' },
+            { label: 'Total Revenue', value: `PKR ${stats.lifetime_revenue.toLocaleString()}`, color: 'green' },
+            { label: 'Total Orders', value: stats.lifetime_orders, color: 'red' },
           ].map((stat) => (
             <div key={stat.label} className={`bg-white p-5 rounded-xl shadow-sm border-l-4 border-${stat.color}-500`}>
               <p className="text-xs text-slate-500 uppercase tracking-wider font-bold">{stat.label}</p>
-              <p className="text-2xl font-bold text-slate-900 mt-2">{stat.value}</p>
+              <p className="text-2xl font-bold text-slate-900 mt-2">{stat.value ?? 0}</p>
             </div>
           ))
         )}

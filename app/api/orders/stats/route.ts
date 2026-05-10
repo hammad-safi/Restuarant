@@ -22,18 +22,20 @@ export async function GET(req: NextRequest) {
       startDate.setMonth(now.getMonth() - 1);
     }
 
-    const orders = await prisma.order.findMany({
-      where: {
-        created_at: { gte: startDate }
-      }
-    });
+    const allOrders = await prisma.order.findMany();
+    const rangeOrders = range === 'all' ? allOrders : allOrders.filter(o => new Date(o.created_at) >= startDate);
 
     const stats = {
-      total_orders: orders.length,
-      total_revenue: orders.reduce((sum, order) => sum + Number(order.total_amount), 0),
-      pending_orders: orders.filter(o => o.status === 'pending').length,
-      completed_orders: orders.filter(o => o.status === 'delivered' || o.status === 'completed').length,
-      cancelled_orders: orders.filter(o => o.status === 'cancelled').length
+      total_orders: rangeOrders.length,
+      total_revenue: rangeOrders.reduce((sum, order) => sum + Number(order.total_amount), 0),
+      lifetime_orders: allOrders.length,
+      lifetime_revenue: allOrders.reduce((sum, order) => sum + Number(order.total_amount), 0),
+      pending: allOrders.filter(o => o.status === 'pending').length,
+      confirmed: allOrders.filter(o => o.status === 'confirmed').length,
+      preparing: allOrders.filter(o => o.status === 'preparing').length,
+      out_for_delivery: allOrders.filter(o => o.status === 'out_for_delivery').length,
+      completed: allOrders.filter(o => o.status === 'completed' || o.status === 'delivered').length,
+      cancelled: allOrders.filter(o => o.status === 'cancelled').length
     };
 
     return addCorsHeaders(NextResponse.json({ success: true, data: stats }));

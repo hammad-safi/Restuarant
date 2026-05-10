@@ -493,3 +493,26 @@ export async function markAllNotificationsRead() {
     method: 'PATCH',
   });
 }
+
+// ============================================
+// CONTACT MESSAGES ENDPOINTS
+// ============================================
+
+export async function getContactMessages() {
+  return apiCall('/api/contact/messages', {
+    method: 'GET',
+  });
+}
+
+export async function markMessageRead(id: string, is_read: boolean) {
+  return apiCall('/api/contact/messages', {
+    method: 'PATCH',
+    body: JSON.stringify({ id, is_read }),
+  });
+}
+
+export async function deleteMessage(id: string) {
+  return apiCall(`/api/contact/messages?id=${id}`, {
+    method: 'DELETE',
+  });
+}

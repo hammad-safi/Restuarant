@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
       where,
       orderBy: { created_at: 'desc' }
     });
-    return addCorsHeaders(NextResponse.json({ success: true, data: items }));
+    return addCorsHeaders(NextResponse.json({ success: true, data: { items } }));
   } catch (error: any) {
     console.error('Get gallery error:', error);
     return addCorsHeaders(NextResponse.json({ success: false, message: 'Server error', error: error.message }, { status: 500 }));

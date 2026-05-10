@@ -177,11 +177,21 @@ export default function Settings() {
                 <div>
                   <label className="block font-label-bold text-on-surface-variant mb-2">Physical Address</label>
                   <textarea
-                    rows={3}
+                    rows={2}
                     value={settings.address || ''}
                     onChange={(e) => handleInputChange('address', e.target.value)}
                     className="w-full px-4 py-3 rounded-lg border border-outline-variant focus:border-primary outline-none"
                   ></textarea>
+                </div>
+                <div>
+                  <label className="block font-label-bold text-on-surface-variant mb-2">Map Embed URL (Optional)</label>
+                  <input
+                    type="text"
+                    value={settings.map_embed || ''}
+                    onChange={(e) => handleInputChange('map_embed', e.target.value)}
+                    className="w-full px-4 py-3 rounded-lg border border-outline-variant focus:border-primary outline-none"
+                    placeholder="https://www.google.com/maps/embed?pb=..."
+                  />
                 </div>
               </div>
             </section>
@@ -197,6 +207,7 @@ export default function Settings() {
                   { label: 'Instagram', key: 'social_instagram', color: '#E1306C' },
                   { label: 'Facebook', key: 'social_facebook', color: '#1877F2' },
                   { label: 'TikTok', key: 'social_tiktok', color: '#000000' },
+                  { label: 'YouTube', key: 'social_youtube', color: '#FF0000' },
                 ].map((social) => (
                   <div key={social.label} className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${social.color}20` }}>

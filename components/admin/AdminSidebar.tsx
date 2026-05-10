@@ -14,6 +14,7 @@ export default function AdminSidebar({ isOpen, onClose }: { isOpen?: boolean; on
     { icon: '◈', label: 'Categories', path: '/admin/categories' },
     { icon: '🍴', label: 'Menu', path: '/admin/menu' },
     { icon: '🏷️', label: 'Deals', path: '/admin/deals' },
+    { icon: '✉️', label: 'Messages', path: '/admin/messages' },
     { icon: '🖼', label: 'Gallery', path: '/admin/gallery' },
     { icon: '💳', label: 'Billing', path: '/admin/billing' },
     { icon: '⚙️', label: 'Settings', path: '/admin/settings' },

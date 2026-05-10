@@ -3,6 +3,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getDeals, createDeal, updateDeal, deleteDeal } from '@/lib/api';
 
+interface MenuItem {
+  id: string;
+  name: string;
+  price: number;
+}
+
 interface Deal {
   id: string;
   title: string;
@@ -11,12 +17,14 @@ interface Deal {
   discount_amount?: number;
   image_url: string;
   is_active: boolean;
+  menu_items?: MenuItem[];
 }
 
 import AdminPageLoader from '@/components/admin/AdminPageLoader';
 
 export default function Deals() {
   const [deals, setDeals] = useState<Deal[]>([]);
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -27,15 +35,25 @@ export default function Deals() {
     discount_amount: '',
     image_url: '',
     is_active: true,
+    menu_item_ids: [] as string[],
   });
 
   const loadDeals = useCallback(async () => {
     try {
       setIsLoading(true);
-      const response = await getDeals({ limit: 100 });
-      if (response.success && response.data) {
-        const dealsData = (response.data as any).deals || (response.data as any).items || [];
+      const [dealsRes, menuItemsRes] = await Promise.all([
+        getDeals({ limit: 100 }),
+        import('@/lib/api').then(m => m.getMenuItems({ limit: 1000 }))
+      ]);
+
+      if (dealsRes.success && dealsRes.data) {
+        const dealsData = (dealsRes.data as any).deals || (dealsRes.data as any).items || [];
         setDeals(dealsData);
+      }
+
+      if (menuItemsRes.success && menuItemsRes.data) {
+        const itemsData = (menuItemsRes.data as any).items || [];
+        setMenuItems(itemsData);
       }
     } catch (err) {
       console.error('Error loading deals:', err);
@@ -58,6 +76,7 @@ export default function Deals() {
         discount_amount: formData.discount_amount ? parseFloat(formData.discount_amount) : undefined,
         image_url: formData.image_url,
         is_active: formData.is_active,
+        menu_item_ids: formData.menu_item_ids,
       };
 
       if (editingId) {
@@ -81,6 +100,7 @@ export default function Deals() {
         discount_amount: '',
         image_url: '',
         is_active: true,
+        menu_item_ids: [],
       });
       setShowForm(false);
       setEditingId(null);
@@ -98,6 +118,7 @@ export default function Deals() {
       discount_amount: deal.discount_amount?.toString() || '',
       image_url: deal.image_url,
       is_active: deal.is_active,
+      menu_item_ids: deal.menu_items?.map(item => item.id) || [],
     });
     setEditingId(deal.id);
     setShowForm(true);
@@ -128,6 +149,7 @@ export default function Deals() {
       discount_amount: '',
       image_url: '',
       is_active: true,
+      menu_item_ids: [],
     });
   };
 
@@ -224,6 +246,31 @@ export default function Deals() {
                       <span className="text-sm font-bold text-slate-700">Active</span>
                     </label>
                   </div>
+
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-bold text-slate-700 mb-2">Select Menu Items for this Deal</label>
+                    <div className="border border-slate-200 rounded-lg p-4 max-h-60 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                      {menuItems.map(item => (
+                        <label key={item.id} className="flex items-center gap-2 p-2 hover:bg-slate-50 rounded cursor-pointer border border-transparent hover:border-slate-100 transition-all">
+                          <input
+                            type="checkbox"
+                            checked={formData.menu_item_ids.includes(item.id)}
+                            onChange={(e) => {
+                              const newIds = e.target.checked 
+                                ? [...formData.menu_item_ids, item.id]
+                                : formData.menu_item_ids.filter(id => id !== item.id);
+                              setFormData({ ...formData, menu_item_ids: newIds });
+                            }}
+                            className="w-4 h-4 rounded text-primary focus:ring-primary"
+                          />
+                          <div className="flex flex-col">
+                            <span className="text-sm font-medium text-slate-900">{item.name}</span>
+                            <span className="text-xs text-slate-500">PKR {item.price}</span>
+                          </div>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
                 </div>
 
                 <div className="flex gap-4 mt-6">
@@ -274,6 +321,9 @@ export default function Deals() {
                         Discount
                       </th>
                       <th className="px-6 py-3 font-label-bold text-slate-500 uppercase tracking-wider">
+                        Items
+                      </th>
+                      <th className="px-6 py-3 font-label-bold text-slate-500 uppercase tracking-wider">
                         Status
                       </th>
                       <th className="px-6 py-3 font-label-bold text-slate-500 uppercase tracking-wider">
@@ -291,6 +341,19 @@ export default function Deals() {
                         <td className="px-6 py-4 text-slate-900">
                           {deal.discount_percentage && `${deal.discount_percentage}%`}
                           {deal.discount_amount && `PKR ${deal.discount_amount}`}
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex flex-wrap gap-1">
+                            {deal.menu_items && deal.menu_items.length > 0 ? (
+                              deal.menu_items.map(item => (
+                                <span key={item.id} className="inline-block px-2 py-0.5 bg-slate-100 text-slate-600 rounded text-[10px] font-medium">
+                                  {item.name}
+                                </span>
+                              ))
+                            ) : (
+                              <span className="text-slate-400 text-xs italic">No items linked</span>
+                            )}
+                          </div>
                         </td>
                         <td className="px-6 py-4">
                           <span

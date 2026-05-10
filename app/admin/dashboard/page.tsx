@@ -12,6 +12,8 @@ interface Stats {
   completed: number;
   total_orders: number;
   total_revenue: number;
+  lifetime_orders: number;
+  lifetime_revenue: number;
 }
 
 interface RecentOrder {
@@ -93,10 +95,10 @@ export default function Dashboard() {
               {stats && (
                 <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                   {[
-                    { icon: 'pending_actions', label: 'Pending Orders', value: stats.pending, color: 'yellow' },
                     { icon: 'check_circle', label: 'Confirmed', value: stats.confirmed, color: 'blue' },
-                    { icon: 'local_fire_department', label: 'Being Prepared', value: stats.preparing, color: 'purple' },
                     { icon: 'payments', label: 'Today Revenue', value: `PKR ${stats.total_revenue.toLocaleString()}`, color: 'green' },
+                    { icon: 'monitoring', label: 'Total Orders', value: stats.lifetime_orders, color: 'blue' },
+                    { icon: 'account_balance_wallet', label: 'Total Revenue', value: `PKR ${stats.lifetime_revenue.toLocaleString()}`, color: 'green' },
                   ].map((stat, idx) => (
                     <div
                       key={idx}
@@ -130,7 +132,9 @@ export default function Dashboard() {
                       <p className="text-slate-500 font-label-bold text-xs uppercase tracking-wider mb-1">
                         {stat.label}
                       </p>
-                      <h3 className="text-2xl font-bold text-slate-900">{stat.value}</h3>
+                      <h3 className="text-2xl font-bold text-slate-900">
+                        {typeof stat.value === 'number' ? stat.value.toLocaleString() : (stat.value || '0')}
+                      </h3>
                     </div>
                   ))}
                 </section>

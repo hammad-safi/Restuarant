@@ -54,6 +54,7 @@ model MenuItem {
   created_at       DateTime    @default(now())
   updated_at       DateTime    @updatedAt
   order_items      OrderItem[]
+  deals            Deal[]      @relation("DealToMenuItem")
 
   @@map("menu_items")
 }
@@ -68,8 +69,9 @@ model Deal {
   is_active           Boolean   @default(true)
   start_date          DateTime?
   end_date            DateTime?
-  created_at          DateTime  @default(now())
-  updated_at          DateTime  @updatedAt
+  created_at          DateTime    @default(now())
+  updated_at          DateTime    @updatedAt
+  menu_items          MenuItem[]  @relation("DealToMenuItem")
 
   @@map("deals")
 }
@@ -184,4 +186,15 @@ model Notification {
   created_at  DateTime @default(now())
 
   @@map("notifications")
+}
+
+model ContactMessage {
+  id         String   @id @default(uuid())
+  name       String
+  email      String
+  message    String
+  is_read    Boolean  @default(false)
+  created_at DateTime @default(now())
+
+  @@map("contact_messages")
 }

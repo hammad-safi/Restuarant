@@ -22,6 +22,7 @@ export default function Gallery() {
   const [newImageUrl, setNewImageUrl] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [newCategory, setNewCategory] = useState('Food');
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const loadGallery = useCallback(async () => {
     try {
@@ -104,6 +105,12 @@ export default function Gallery() {
     } catch (err) {
       console.error('Error deleting image:', err);
     }
+  };
+
+  const handleCopyLink = (url: string, id: string) => {
+    navigator.clipboard.writeText(url);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
   };
 
   const stats = {
@@ -291,10 +298,22 @@ export default function Gallery() {
                       sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
                       className="object-cover group-hover:scale-110 transition-transform duration-500"
                     />
-                    <div className="delete-overlay absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="delete-overlay absolute inset-0 bg-black/40 flex items-center justify-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button 
+                        onClick={() => handleCopyLink(item.image_url, item.id)}
+                        className={`w-12 h-12 rounded-full flex items-center justify-center transition-all shadow-lg active:scale-90 ${
+                          copiedId === item.id ? 'bg-green-500 text-white' : 'bg-white text-slate-800 hover:bg-slate-100'
+                        }`}
+                        title="Copy Link"
+                      >
+                        <span className="material-symbols-outlined">
+                          {copiedId === item.id ? 'check' : 'content_copy'}
+                        </span>
+                      </button>
                       <button 
                         onClick={() => handleDelete(item.id)}
-                        className="w-12 h-12 bg-[#d4a843] text-[#1a1f2e] rounded-full flex items-center justify-center hover:brightness-95 active:scale-90 transition-all shadow-lg"
+                        className="w-12 h-12 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 active:scale-90 transition-all shadow-lg"
+                        title="Delete"
                       >
                         <span className="material-symbols-outlined">delete</span>
                       </button>
