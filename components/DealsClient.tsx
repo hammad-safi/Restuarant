@@ -1,5 +1,5 @@
 'use client';
-
+//any
 import { getDeals } from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
 import { useCartStore } from '@/lib/store/cartStore';
